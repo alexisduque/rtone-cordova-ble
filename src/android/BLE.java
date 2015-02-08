@@ -643,12 +643,12 @@ public class BLE extends CordovaPlugin implements LeScanCallback {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if(status == BluetoothGatt.GATT_SUCCESS) {
-                if(!mRegisteredPairingReceiver) {
-                    final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
-                    mContext.registerReceiver(mPairingBroadcastReceiver, filter);
-                    mRegisteredPairingReceiver = true;
-                }
                 if (!this.mPasskey.isEmpty()) {
+                    if(!mRegisteredPairingReceiver) {
+                        final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
+                        mContext.registerReceiver(mPairingBroadcastReceiver, filter);
+                        mRegisteredPairingReceiver = true;
+                    }
                     try {
                         Method createBond = BluetoothDevice.class.getMethod("createBond", (Class[]) null);
                         createBond.invoke(gatt.getDevice(), (Object[]) null);
