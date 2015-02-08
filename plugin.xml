@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
+    	xmlns:android="http://schemas.android.com/apk/res/android"
+	id="fr.rtone.cordova.ble"
+	version="0.0.1">
+
+	<!-- This plugin requires Cordova version 3.1.0 or newer. -->
+	<engines>
+		<engine name="cordova" version=">=3.1.0" />
+	</engines>
+
+	<name>Rtone BLE API</name>
+	<description>This plugin allows your app to act as a Bluetooth Low Energy client.</description>
+	<author>Rtone</author>
+	<keywords>bluetooth,low energy,smart</keywords>
+	<license>Apache 2.0</license>
+
+	<js-module src="ble.js" name="BLE">
+		<clobbers target="ble" />
+	</js-module>
+
+	<platform name="android">
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="BLE" >
+				<param name="android-package" value="fr.rtone.cordova.BLE"/>
+			</feature>
+		</config-file>
+		<config-file target="AndroidManifest.xml" parent="/manifest">
+			<uses-permission android:name="android.permission.BLUETOOTH" />
+			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+		</config-file>
+
+		<source-file src="src/android/BLE.java" target-dir="src/fr/rtone/cordova" />
+	</platform>
+
+	<platform name="ios">
+		<config-file target="config.xml" parent="/*">
+			<feature name="BLE">
+				<param name="ios-package" value="RTONEBLE"/>
+			</feature>
+		</config-file>
+
+		<framework src="CoreBluetooth.framework" />
+
+		<header-file src="src/ios/RTONEBLE.h" />
+		<source-file src="src/ios/RTONEBLE.m" />
+	</platform>
+
+</plugin>
