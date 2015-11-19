@@ -56,6 +56,13 @@ limitations under the License.
 			appendFormat: @"0000%02x%02x-0000-1000-8000-00805f9b34fb",
 			uuidBytes[0], uuidBytes[1]];
 	}
+	else if (4 == uuidNumBytes)
+	{
+		// Apply the Bluetooth Base UUID to 4-byte UUID:
+		[outputString
+			appendFormat: @"%02x%02x%02x%02x-0000-1000-8000-00805f9b34fb",
+			uuidBytes[0], uuidBytes[1], uuidBytes[2], uuidBytes[3]];
+	}
 	else if (16 == uuidNumBytes)
 	{
 		// Format full 16-byte UUID.
@@ -189,7 +196,7 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 /*                       Class Methods                          */
 /****************************************************************/
 
-+ (EVOPeripheral*) withBLE: (EVOBLE*) ble
++ (EVOPeripheral*) withBLE: (RTONEBLE*) ble
 	periperal: (CBPeripheral*) peripheral
 {
 	// Create instance.
@@ -754,7 +761,7 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 //                          Class BLE                           //
 //////////////////////////////////////////////////////////////////
 
-@implementation EVOBLE
+@implementation RTONEBLE
 
 //////////////////////////////////////////////////////////////////
 // TODO: Guard against parallel invocations of API calls.       //
@@ -1249,7 +1256,9 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 	if([self isSafeToCopy:o])
 		return o;
 	if([o.class isSubclassOfClass:CBUUID.class]) {
-		return [(CBUUID*)o UUIDString];
+		// Use our local stringifyer, guaranteed to follow RFC 4122,
+		// as required by the plugin specification.
+		return [(CBUUID*)o uuidString];
 	}
 	if([o.class isSubclassOfClass:NSData.class]) {
 		return [(NSData*)o base64EncodedStringWithOptions:0];
@@ -1287,8 +1296,9 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 	// Some objects in advertisementData don't support CDVJSONSerializing.
 	// To fix that, we make a deep copy of advertisementData and
 	// prepareForJson those objects.
-
-	NSObject* newData = [self prepareForJson:advertisementData];
+	// Since we call prepareForJson: with an NSDictionary we will get
+	// back an NSDictionary, so this type cast should be safe.
+	NSDictionary* newData = (NSDictionary*) [self prepareForJson:advertisementData];
 
 	[self
 		sendScanInfoForPeriperhal: peripheral
@@ -1493,7 +1503,6 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 		@"rssi" : RSSI,
 		@"advertisementData" : advertisementData,
 		@"name" : (peripheral.name != nil) ? peripheral.name : [NSNull null],
-		@"scanRecord" : @""
 	};
 
 	// Send back data to JS.
