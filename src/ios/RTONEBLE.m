@@ -18,6 +18,8 @@ limitations under the License.
 #import <objc/runtime.h>
 #import "RTONEBLE.h"
 
+#define DEVICE_INFO_SERVICE_UUID @"180a"
+
 //////////////////////////////////////////////////////////////////
 //                  Class Extension CBUUID                      //
 //////////////////////////////////////////////////////////////////
@@ -1456,7 +1458,7 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 	NSDictionary* options = @{CBCentralManagerScanOptionAllowDuplicatesKey: @YES};
 
 	[self.central
-		scanForPeripheralsWithServices: nil
+        scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:DEVICE_INFO_SERVICE_UUID]]
 		options: options];
 
 	return 0;
