@@ -18,7 +18,9 @@ limitations under the License.
 #import <objc/runtime.h>
 #import "RTONEBLE.h"
 
-#define DEVICE_INFO_SERVICE_UUID @"180a"
+#define DEVICE_INFO_SERVICE_UUID @"1801"
+#define DEVICE_ID_SERVICE_UUID @"180a"
+#define DEVICE_BATTERY_SERVICE_UUID @"180f"
 
 //////////////////////////////////////////////////////////////////
 //                  Class Extension CBUUID                      //
@@ -781,6 +783,12 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 {
 	// Save callbackId.
 	self.scanCallbackId = command.callbackId;
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    
+    // If the status is denied or only granted for when in use, display an alert
+    if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusNotDetermined) {
+        [self.locationManager requestAlwaysAuthorization];
+    }
 
 	// Start scanning.
 	[self scanForPeripherals];
@@ -1456,9 +1464,13 @@ static int EVOPerhiperalAssociatedObjectKey = 42;
 	self.scanIsWaiting = NO;
 
 	NSDictionary* options = @{CBCentralManagerScanOptionAllowDuplicatesKey: @YES};
-
+    
 	[self.central
-        scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:DEVICE_INFO_SERVICE_UUID]]
+        scanForPeripheralsWithServices:@[
+            [CBUUID UUIDWithString:DEVICE_INFO_SERVICE_UUID],
+            [CBUUID UUIDWithString:DEVICE_ID_SERVICE_UUID],
+            [CBUUID UUIDWithString:DEVICE_BATTERY_SERVICE_UUID]
+        ]
 		options: options];
 
 	return 0;
